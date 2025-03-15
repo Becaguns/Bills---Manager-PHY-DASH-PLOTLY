@@ -26,4 +26,153 @@ Definicoes principais
 
 3 - Integrar o dashboard.html para ser acessado apos a tela de login
       Criar CSS para o dashboard.html para que seja igual o tema da tela de login.
+
+4 - Agora que ja temos um dashboard e a sidebar vamos implemetar alguns graficos, na tela do lado da sidebar vamos fazer o fazer a seguinte divisao 
+    *   Um retangulo com as seguintes dimensoes \
+  /* Estilo para o retângulo */
+.rectangle-4 {
+    width: 360px;
+    height: 276px;
+    padding: 8px;
+    background: linear-gradient(144deg, rgb(23, 23, 23) 0%, rgb(17, 17, 17) 99%);
+    border-radius: 16px;
+}
+
+/* Estilo para o título */
+.proventos-x-despesas {
+    width: 230px;
+    height: 31px;
+    color: #FFFFFF;
+    font-family: "Nunito Sans";
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.2px;
+    text-align: left;
+}
+
+Dentro desse retangulo iremos inserir o seguinte grafico  
+
+
+Funcao para cor gradiente 1 linha Proventos
+
+let width, height, gradient;
+function getGradient(ctx, chartArea) {
+  const chartWidth = chartArea.right - chartArea.left;
+  const chartHeight = chartArea.bottom - chartArea.top;
+  if (!gradient || width !== chartWidth || height !== chartHeight) {
+    // Create the gradient because this is either the first render
+    // or the size of the chart has changed
+    width = chartWidth;
+    height = chartHeight;
+    gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+    gradient.addColorStop(0, Utils.CHART_COLORS.blue);
+    gradient.addColorStop(0.5, Utils.CHART_COLORS.yellow);
+    gradient.addColorStop(1, Utils.CHART_COLORS.red);
+  }
+
+  return gradient;
+}
+
+// Função para inverter o gradiente 2 linha Despesa 
+function getReversedGradient(ctx, chartArea) {
+  const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+  gradient.addColorStop(0, 'blue'); // Cor final da original vira a inicial
+  gradient.addColorStop(1, 'red'); // Cor inicial da original vira a final
+  return gradient;
+}
+
+o Config do graffico  editar como for mais eficaz para a nossa aplicacao
+
+const config = {
+  type: 'line',
+  data: data,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+    }
+  },
+};
+
+Setup do grafico  Mudar para tratar o mes e o valor de R$: 3000 ate  R$: 25000
+
+const DATA_COUNT = 7;
+const NUMBER_CFG = {count: DATA_COUNT, min: -100, max: 100};
+const labels = Utils.months({count: 7});
+
+const data = {
+  labels: labels,
+  datasets: [
+    {
+      label: 'Dataset 1',
+      data: Utils.numbers(NUMBER_CFG),
+      borderColor: function(context) {
+        const chart = context.chart;
+        const {ctx, chartArea} = chart;
+
+        if (!chartArea) {
+          return;
+        }
+        return getGradient(ctx, chartArea);
+      },
+    },
+    {
+      label: 'Dataset 2', // Segunda linha com cores invertidas
+      data: Utils.numbers(NUMBER_CFG),
+      borderColor: function(context) {
+        const chart = context.chart;
+        const {ctx, chartArea} = chart;
+
+        if (!chartArea) {
+          return;
+        }
+        return getReversedGradient(ctx, chartArea);
+      },
+    },
+  ]
+};
+
+E as acoes do grafico 
+
+const actions = [
+  {
+    name: 'Randomize',
+    handler(chart) {
+      chart.data.datasets.forEach(dataset => {
+        dataset.data = Utils.numbers({count: chart.data.labels.length, min: -100, max: 100});
+      });
+      chart.update();
+    }
+  },
+  {
+    name: 'Add Data',
+    handler(chart) {
+      const data = chart.data;
+      if (data.datasets.length > 0) {
+        data.labels = Utils.months({count: data.labels.length + 1});
+
+        for (let index = 0; index < data.datasets.length; ++index) {
+          data.datasets[index].data.push(Utils.rand(-100, 100));
+        }
+
+        chart.update();
+      }
+    }
+  },
+  {
+    name: 'Remove Data',
+    handler(chart) {
+      chart.data.labels.splice(-1, 1); // remove the label first
+
+      chart.data.datasets.forEach(dataset => {
+        dataset.data.pop();
+      });
+
+      chart.update();
+    }
+  }
+];
+
           
