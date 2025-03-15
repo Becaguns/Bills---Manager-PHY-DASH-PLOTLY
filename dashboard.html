@@ -1,208 +1,218 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Financial Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-</head>
-<body class="bg-gray-900 text-white">
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 p-4">
-            <div class="text-lg font-semibold mb-6">
-                Seja Bem vindo {{ session.get('username', 'Guest') }}
-            </div>
-            <nav class="space-y-4">
-                <a class="flex items-center space-x-2 text-purple-500" href="{{ url_for('dashboard') }}">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a class="flex items-center space-x-2" href="{{ url_for('add_expense') }}">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Adicionar Despesas</span>
-                </a>
-                <a class="flex items-center space-x-2" href="{{ url_for('add_earning') }}">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Adicionar Ganhos</span>
-                </a>
-                <a class="flex items-center space-x-2" href="{{ url_for('add_goal') }}">
-                    <i class="fas fa-bullseye"></i>
-                    <span>Adicionar Metas</span>
-                </a>
-            </nav>
-            <div class="mt-auto">
-                <a class="flex items-center space-x-2 text-purple-500" href="{{ url_for('logout') }}">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sign out</span>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="flex-1 p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-semibold">Dashboard</h1>
-            </div>
-            
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="bg-purple-800 p-4 rounded mb-6">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-            
-            <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h2 class="text-xl font-semibold mb-2">Total de Ganhos</h2>
-                    <p class="text-3xl font-bold text-green-500">R$ {{ "%.2f"|format(total_earnings) }}</p>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h2 class="text-xl font-semibold mb-2">Total de Despesas</h2>
-                    <p class="text-3xl font-bold text-red-500">R$ {{ "%.2f"|format(total_expenses) }}</p>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h2 class="text-xl font-semibold mb-2">Saldo</h2>
-                    <p class="text-3xl font-bold {% if total_earnings > total_expenses %}text-green-500{% else %}text-red-500{% endif %}">
-                        R$ {{ "%.2f"|format(total_earnings - total_expenses) }}
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Charts -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h2 class="text-xl font-semibold mb-4">Ganhos vs Despesas</h2>
-                    <div id="earnings-vs-expenses"></div>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h2 class="text-xl font-semibold mb-4">Distribuição de Despesas</h2>
-                    <div id="expenses-distribution"></div>
-                </div>
-            </div>
-            
-            <!-- Goals -->
-            <div class="bg-gray-800 p-6 rounded-lg mb-6">
-                <h2 class="text-xl font-semibold mb-4">Metas</h2>
-                {% if goals %}
-                    <div class="space-y-4">
-                        {% for goal in goals %}
-                            <div class="bg-gray-700 p-4 rounded">
-                                <div class="flex justify-between items-center mb-2">
-                                    <h3 class="font-semibold">{{ goal.description }}</h3>
-                                    <p class="text-sm">Prazo: {{ goal.deadline.strftime('%d/%m/%Y') }}</p>
-                                </div>
-                                <div class="relative pt-1">
-                                    <div class="flex mb-2 items-center justify-between">
-                                        <div>
-                                            <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-purple-200 bg-purple-900">
-                                                {{ "%.2f"|format(goal.progress) }}%
-                                            </span>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="text-xs font-semibold inline-block text-purple-200">
-                                                R$ {{ "%.2f"|format(goal.current_amount) }} / R$ {{ "%.2f"|format(goal.target_amount) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-purple-200">
-                                        <div style="width:{{ goal.progress }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"></div>
-                                    </div>
-                                </div>
-                                <form action="{{ url_for('update_goal', goal_id=goal.id) }}" method="post" class="mt-2">
-                                    <div class="flex space-x-2">
-                                        <input type="number" name="current_amount" value="{{ goal.current_amount }}" step="0.01" class="flex-1 bg-gray-600 text-white p-2 rounded" placeholder="Atualizar valor">
-                                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded">
-                                            Atualizar
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-gray-400">Nenhuma meta cadastrada.</p>
-                {% endif %}
-            </div>
-            
-            <!-- Recent Transactions -->
-            <div class="bg-gray-800 p-6 rounded-lg">
-                <h2 class="text-xl font-semibold mb-4">Transações Recentes</h2>
-                {% if transactions %}
-                    <div class="overflow-x-auto">
-                        <table class="w-full table-auto">
-                            <thead>
-                                <tr class="text-left text-gray-400 border-b border-gray-700">
-                                    <th class="pb-3">Descrição</th>
-                                    <th class="pb-3">Categoria</th>
-                                    <th class="pb-3">Data</th>
-                                    <th class="pb-3 text-right">Valor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for transaction in transactions %}
-                                    <tr class="border-b border-gray-700">
-                                        <td class="py-3">{{ transaction.description }}</td>
-                                        <td class="py-3">{{ transaction.category }}</td>
-                                        <td class="py-3">{{ transaction.date.strftime('%d/%m/%Y') }}</td>
-                                        <td class="py-3 text-right {% if transaction.amount >= 0 %}text-green-500{% else %}text-red-500{% endif %}">
-                                            R$ {{ "%.2f"|format(transaction.amount) }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p class="text-gray-400">Nenhuma transação registrada.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+from flask import Flask, render_template, redirect, url_for, request, session, flash
+import logging
+import psycopg2
+import psycopg2.extras
+import bcrypt
+from datetime import datetime
 
-    <!-- Include Dash app iframe -->
-    <script>
-        // Load the Dash app in an iframe
-        window.onload = function() {
-            const earningsVsExpensesDiv = document.getElementById('earnings-vs-expenses');
-            const expensesDistributionDiv = document.getElementById('expenses-distribution');
-            
-            // Create iframes for each chart
-            const earningsVsExpensesIframe = document.createElement('iframe');
-            earningsVsExpensesIframe.src = '/earnings_vs_expenses';
-            earningsVsExpensesIframe.width = '100%';
-            earningsVsExpensesIframe.height = '300';
-            earningsVsExpensesIframe.style.border = 'none';
-            earningsVsExpensesDiv.appendChild(earningsVsExpensesIframe);
-            
-            // Create iframe for expenses distribution chart
-            const expensesDistributionIframe = document.createElement('iframe');
-            expensesDistributionIframe.src = '/expenses_distribution';
-            expensesDistributionIframe.width = '100%';
-            expensesDistributionIframe.height = '300';
-            expensesDistributionIframe.style.border = 'none';
-            expensesDistributionDiv.appendChild(expensesDistributionIframe);
-            
-            // Alternative: Use API endpoints with Chart.js
-            fetch('/api/earnings-expenses')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Earnings vs Expenses Data:', data);
-                    // Here you could implement Chart.js rendering
-                });
-                
-            fetch('/api/expenses-distribution')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Expenses Distribution Data:', data);
-                    // Here you could implement Chart.js rendering
-                });
-        };
-    </script>
-</body>
-</html>
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+# Configuração básica de logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Configuração do banco de dados
+DB_HOST = '192.168.100.100'
+DB_NAME = 'sentinel'
+DB_USER = 'andrino'
+DB_PASS = 'Rebecca@2023'
+
+# Função para obter a senha hasheada do banco de dados
+def get_hashed_password(username):
+    try:
+        connection = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+        cursor = connection.cursor()
+        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        if result:
+            logging.debug(f"Senha original recuperada: {result[0]}")  # Adicionando log para verificar a senha original
+            return result[0]  # Retorna a senha hasheada
+        return None
+    except Exception as e:
+        logging.error(f"Erro ao conectar ao banco de dados: {e}")
+        return None
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+# Função para registrar um novo usuário
+def register_user(username, password):
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    logging.debug(f"Senha hasheada para novo usuário: {hashed_password}")  # Adicionando log para verificar a senha hasheada
+    try:
+        connection = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password.decode('utf-8')))
+        connection.commit()
+        return True
+    except psycopg2.errors.UniqueViolation:
+        logging.error(f"Erro ao registrar usuário: nome de usuário '{username}' já existe.")
+        return False, "Username already exists."
+    except Exception as e:
+        logging.error(f"Erro ao registrar usuário: {e}")
+        return False, "Registration failed."
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+# Função para remover um usuário
+def remove_user(username, password):
+    hashed_password = get_hashed_password(username)
+    if hashed_password and bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
+        try:
+            connection = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASS
+            )
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM users WHERE username = %s", (username,))
+            connection.commit()
+            return True
+        except Exception as e:
+            logging.error(f"Erro ao remover usuário: {e}")
+            return False
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
+    else:
+        return False
+
+# Função para alterar a senha de um usuário
+def change_password(username, current_password, new_password):
+    hashed_password = get_hashed_password(username)
+    if hashed_password and bcrypt.checkpw(current_password.encode('utf-8'), hashed_password.encode('utf-8')):
+        new_hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        logging.debug(f"Nova senha hasheada para o usuário {username}: {new_hashed_password}")
+        try:
+            connection = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASS
+            )
+            cursor = connection.cursor()
+            cursor.execute("UPDATE users SET password = %s WHERE username = %s", (new_hashed_password.decode('utf-8'), username))
+            connection.commit()
+            return True
+        except Exception as e:
+            logging.error(f"Erro ao alterar a senha do usuário: {e}")
+            return False
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
+    else:
+        return False
+
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password'].encode('utf-8')
+        logging.debug(f"Tentativa de login com username: {username}")
+        hashed_password = get_hashed_password(username)
+        logging.debug(f"Senha hasheada recuperada: {hashed_password}")
+        if hashed_password:
+            try:
+                # Vamos tentar re-hash a senha recuperada para ver se o problema persiste
+                if bcrypt.checkpw(password, hashed_password.encode('utf-8')):
+                    session['username'] = username
+                    logging.debug(f"Login bem-sucedido para usuário: {username}")
+                    return redirect(url_for('dashboard'))
+                else:
+                    logging.warning(f"Senha incorreta para usuário: {username}")
+                    flash('Login Failed. Please check your username and password.', 'error')
+            except ValueError as ve:
+                logging.error(f"Erro ao verificar a senha: {ve}")
+                flash('Internal error. Please try again later.', 'error')
+        else:
+            logging.warning(f"Usuário {username} não encontrado.")
+            flash('Login Failed. Please check your username and password.', 'error')
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        if password != confirm_password:
+            flash('Passwords do not match. Please try again.', 'error')
+        else:
+            success, message = register_user(username, password)
+            if success:
+                flash('Registration successful! You can now log in.', 'success')
+                return redirect(url_for('login'))
+            else:
+                flash(message, 'error')
+    return render_template('register.html')
+
+@app.route('/remove_user', methods=['POST'])
+def remove_user_route():
+    username = request.form['username']
+    password = request.form['password']
+    if remove_user(username, password):
+        flash(f"User '{username}' removed successfully.", 'success')
+    else:
+        flash(f"Failed to remove user '{username}'. Please check your password and try again.", 'error')
+    return redirect(url_for('login'))
+
+@app.route('/change_password', methods=['POST'])
+def change_password_route():
+    username = request.form['username']
+    current_password = request.form['current_password']
+    new_password = request.form['new_password']
+    confirm_new_password = request.form['confirm_new_password']
+    if new_password != confirm_new_password:
+        flash('Passwords do not match. Please try again.', 'error')
+    else:
+        if change_password(username, current_password, new_password):
+            flash('Password changed successfully.', 'success')
+        else:
+            flash('Failed to change password. Please check your current password and try again.', 'error')
+    return redirect(url_for('login'))
+
+@app.route('/dashboard')
+def dashboard():
+    if 'username' in session:
+        # Substitua essas linhas pelos dados reais do seu banco de dados
+        total_earnings = 1000.00
+        total_expenses = 500.00
+        goals = [
+            {"id": 1, "description": "Meta 1", "deadline": datetime.strptime("2025-12-31", "%Y-%m-%d"), "progress": 50, "current_amount": 500, "target_amount": 1000},
+            {"id": 2, "description": "Meta 2", "deadline": datetime.strptime("2025-06-30", "%Y-%m-%d"), "progress": 30, "current_amount": 300, "target_amount": 1000},
+        ]
+        transactions = [
+            {"description": "Compra 1", "category": "Alimentação", "date": datetime.strptime("2025-03-01", "%Y-%m-%d"), "amount": -50.00},
+            {"description": "Salário", "category": "Renda", "date": datetime.strptime("2025-03-01", "%Y-%m-%d"), "amount": 1500.00},
+        ]
+        return render_template('dashboard.html', total_earnings=total_earnings, total_expenses=total_expenses, goals=goals, transactions=transactions)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
