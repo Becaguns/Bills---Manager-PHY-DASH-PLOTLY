@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Wallet Sentinel - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet"/>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md">
+        <h1 class="text-3xl text-center font-semibold mb-6">Wallet Sentinel</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4">
+                    {% for category, message in messages %}
+                        <div class="bg-red-500 text-white p-3 rounded mb-2">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form class="bg-gray-800 p-8 rounded-lg shadow-lg" method="post">
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2" for="username">Username</label>
+                <input class="w-full p-3 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-purple-600" type="text" id="username" name="username" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-2" for="password">Password</label>
+                <input class="w-full p-3 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-purple-600" type="password" id="password" name="password" required>
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="btn btn-bounce flex items-center space-x-2" type="submit">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+            </div>
+        </form>
+        <p class="text-center mt-6 text-gray-500">Sua liberdade financeira depende da sua disciplina.</p>
+    </div>
+</body>
+</html>

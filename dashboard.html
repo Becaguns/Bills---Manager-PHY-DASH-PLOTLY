@@ -15,7 +15,7 @@
                 Seja Bem vindo {{ session.get('username', 'Guest') }}
             </div>
             <nav class="space-y-4">
-                <a class="flex items-center space-x-2 text-purple-500" href="{{ url_for('index') }}">
+                <a class="flex items-center space-x-2 text-purple-500" href="{{ url_for('dashboard') }}">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
@@ -174,7 +174,7 @@
             
             // Create iframes for each chart
             const earningsVsExpensesIframe = document.createElement('iframe');
-            earningsVsExpensesIframe.src = '/dashboard/';
+            earningsVsExpensesIframe.src = '/earnings_vs_expenses';
             earningsVsExpensesIframe.width = '100%';
             earningsVsExpensesIframe.height = '300';
             earningsVsExpensesIframe.style.border = 'none';
@@ -182,7 +182,7 @@
             
             // Create iframe for expenses distribution chart
             const expensesDistributionIframe = document.createElement('iframe');
-            expensesDistributionIframe.src = '/expenses-distribution/';
+            expensesDistributionIframe.src = '/expenses_distribution';
             expensesDistributionIframe.width = '100%';
             expensesDistributionIframe.height = '300';
             expensesDistributionIframe.style.border = 'none';
