@@ -2,30 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Wallet Sentinel - Dashboard</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet"/>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+    <!-- Custom Global CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}"/>
+
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
+        /* Animação dourada */
         @keyframes goldTransition {
             0% { color: #b8860b; }
             50% { color: #ffd700; }
             100% { color: #b8860b; }
         }
+
         .gold-text {
             animation: goldTransition 3s linear infinite;
         }
+
+        /* Texto Verde (Money) */
         .money-text {
-            color: #228B22; /* Forest Green color */
+            color: #228B22; /* Verde escuro */
         }
+
+        /* Sidebar */
         .sidebar {
             transition: width 0.3s;
         }
         .sidebar:hover {
             width: 250px;
         }
+
+        /* Animações de hover nos itens do menu */
         .nav-item {
             transition: background-color 0.3s, transform 0.3s;
         }
@@ -33,12 +50,15 @@
             background-color: #4a5568;
             transform: translateX(10px);
         }
+
         .nav-icon {
             transition: transform 0.3s;
         }
         .nav-item:hover .nav-icon {
             transform: rotate(360deg);
         }
+
+        /* Botão de logout */
         .logout-btn {
             transition: background-color 0.3s, transform 0.3s;
         }
@@ -46,11 +66,34 @@
             background-color: #4a5568;
             transform: translateX(10px);
         }
+
         .logout-icon {
             transition: transform 0.3s;
         }
         .logout-btn:hover .logout-icon {
             transform: rotate(360deg);
+        }
+
+        /* Efeito Roxo e Brilho */
+        .purple-text {
+            color: #800080; /* Roxo */
+            font-weight: bold;
+        }
+
+        @keyframes starGlow {
+            0% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #800080, 0 0 15px #800080;
+            }
+            50% {
+                text-shadow: 0 0 10px #fff, 0 0 20px #800080, 0 0 30px #800080;
+            }
+            100% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #800080, 0 0 15px #800080;
+            }
+        }
+
+        .star-glow {
+            animation: starGlow 2s infinite;
         }
     </style>
 </head>
@@ -84,10 +127,13 @@
             </button>
         </div>
     </div>
+
     <!-- Main content -->
     <div class="flex-1 p-6">
-        <h2 class="text-2xl font-semibold mb-6 gold-text">Sentinel</h2>
-        <!-- Add your main content here -->
+        <h2 class="text-2xl font-semibold mb-6">
+            <span class="star-glow purple-text">Sentinel</span>
+        </h2>
+        <!-- Conteúdo principal -->
     </div>
 </body>
 </html>
