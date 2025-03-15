@@ -39,3 +39,35 @@
         transform: translateX(-5px);
     }
 }
+
+/* Additional styles for dashboard */
+.sidebar {
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-btn {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-btn:hover {
+    background-color: #555;
+}
+
+.main-content {
+    margin-left: 200px;
+    padding: 20px;
+}

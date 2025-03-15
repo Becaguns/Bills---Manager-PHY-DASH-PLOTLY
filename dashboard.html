@@ -1,218 +1,93 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
-import logging
-import psycopg2
-import psycopg2.extras
-import bcrypt
-from datetime import datetime
-
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-
-# Configuração básica de logging
-logging.basicConfig(level=logging.DEBUG)
-
-# Configuração do banco de dados
-DB_HOST = '192.168.100.100'
-DB_NAME = 'sentinel'
-DB_USER = 'andrino'
-DB_PASS = 'Rebecca@2023'
-
-# Função para obter a senha hasheada do banco de dados
-def get_hashed_password(username):
-    try:
-        connection = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
-        cursor = connection.cursor()
-        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
-        result = cursor.fetchone()
-        if result:
-            logging.debug(f"Senha original recuperada: {result[0]}")  # Adicionando log para verificar a senha original
-            return result[0]  # Retorna a senha hasheada
-        return None
-    except Exception as e:
-        logging.error(f"Erro ao conectar ao banco de dados: {e}")
-        return None
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
-
-# Função para registrar um novo usuário
-def register_user(username, password):
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    logging.debug(f"Senha hasheada para novo usuário: {hashed_password}")  # Adicionando log para verificar a senha hasheada
-    try:
-        connection = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password.decode('utf-8')))
-        connection.commit()
-        return True
-    except psycopg2.errors.UniqueViolation:
-        logging.error(f"Erro ao registrar usuário: nome de usuário '{username}' já existe.")
-        return False, "Username already exists."
-    except Exception as e:
-        logging.error(f"Erro ao registrar usuário: {e}")
-        return False, "Registration failed."
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
-
-# Função para remover um usuário
-def remove_user(username, password):
-    hashed_password = get_hashed_password(username)
-    if hashed_password and bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
-        try:
-            connection = psycopg2.connect(
-                host=DB_HOST,
-                database=DB_NAME,
-                user=DB_USER,
-                password=DB_PASS
-            )
-            cursor = connection.cursor()
-            cursor.execute("DELETE FROM users WHERE username = %s", (username,))
-            connection.commit()
-            return True
-        except Exception as e:
-            logging.error(f"Erro ao remover usuário: {e}")
-            return False
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-    else:
-        return False
-
-# Função para alterar a senha de um usuário
-def change_password(username, current_password, new_password):
-    hashed_password = get_hashed_password(username)
-    if hashed_password and bcrypt.checkpw(current_password.encode('utf-8'), hashed_password.encode('utf-8')):
-        new_hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-        logging.debug(f"Nova senha hasheada para o usuário {username}: {new_hashed_password}")
-        try:
-            connection = psycopg2.connect(
-                host=DB_HOST,
-                database=DB_NAME,
-                user=DB_USER,
-                password=DB_PASS
-            )
-            cursor = connection.cursor()
-            cursor.execute("UPDATE users SET password = %s WHERE username = %s", (new_hashed_password.decode('utf-8'), username))
-            connection.commit()
-            return True
-        except Exception as e:
-            logging.error(f"Erro ao alterar a senha do usuário: {e}")
-            return False
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-    else:
-        return False
-
-@app.route('/')
-def index():
-    return redirect(url_for('login'))
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password'].encode('utf-8')
-        logging.debug(f"Tentativa de login com username: {username}")
-        hashed_password = get_hashed_password(username)
-        logging.debug(f"Senha hasheada recuperada: {hashed_password}")
-        if hashed_password:
-            try:
-                # Vamos tentar re-hash a senha recuperada para ver se o problema persiste
-                if bcrypt.checkpw(password, hashed_password.encode('utf-8')):
-                    session['username'] = username
-                    logging.debug(f"Login bem-sucedido para usuário: {username}")
-                    return redirect(url_for('dashboard'))
-                else:
-                    logging.warning(f"Senha incorreta para usuário: {username}")
-                    flash('Login Failed. Please check your username and password.', 'error')
-            except ValueError as ve:
-                logging.error(f"Erro ao verificar a senha: {ve}")
-                flash('Internal error. Please try again later.', 'error')
-        else:
-            logging.warning(f"Usuário {username} não encontrado.")
-            flash('Login Failed. Please check your username and password.', 'error')
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-        if password != confirm_password:
-            flash('Passwords do not match. Please try again.', 'error')
-        else:
-            success, message = register_user(username, password)
-            if success:
-                flash('Registration successful! You can now log in.', 'success')
-                return redirect(url_for('login'))
-            else:
-                flash(message, 'error')
-    return render_template('register.html')
-
-@app.route('/remove_user', methods=['POST'])
-def remove_user_route():
-    username = request.form['username']
-    password = request.form['password']
-    if remove_user(username, password):
-        flash(f"User '{username}' removed successfully.", 'success')
-    else:
-        flash(f"Failed to remove user '{username}'. Please check your password and try again.", 'error')
-    return redirect(url_for('login'))
-
-@app.route('/change_password', methods=['POST'])
-def change_password_route():
-    username = request.form['username']
-    current_password = request.form['current_password']
-    new_password = request.form['new_password']
-    confirm_new_password = request.form['confirm_new_password']
-    if new_password != confirm_new_password:
-        flash('Passwords do not match. Please try again.', 'error')
-    else:
-        if change_password(username, current_password, new_password):
-            flash('Password changed successfully.', 'success')
-        else:
-            flash('Failed to change password. Please check your current password and try again.', 'error')
-    return redirect(url_for('login'))
-
-@app.route('/dashboard')
-def dashboard():
-    if 'username' in session:
-        # Substitua essas linhas pelos dados reais do seu banco de dados
-        total_earnings = 1000.00
-        total_expenses = 500.00
-        goals = [
-            {"id": 1, "description": "Meta 1", "deadline": datetime.strptime("2025-12-31", "%Y-%m-%d"), "progress": 50, "current_amount": 500, "target_amount": 1000},
-            {"id": 2, "description": "Meta 2", "deadline": datetime.strptime("2025-06-30", "%Y-%m-%d"), "progress": 30, "current_amount": 300, "target_amount": 1000},
-        ]
-        transactions = [
-            {"description": "Compra 1", "category": "Alimentação", "date": datetime.strptime("2025-03-01", "%Y-%m-%d"), "amount": -50.00},
-            {"description": "Salário", "category": "Renda", "date": datetime.strptime("2025-03-01", "%Y-%m-%d"), "amount": 1500.00},
-        ]
-        return render_template('dashboard.html', total_earnings=total_earnings, total_expenses=total_expenses, goals=goals, transactions=transactions)
-    else:
-        return redirect(url_for('login'))
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Wallet Sentinel - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @keyframes goldTransition {
+            0% { color: #b8860b; }
+            50% { color: #ffd700; }
+            100% { color: #b8860b; }
+        }
+        .gold-text {
+            animation: goldTransition 3s linear infinite;
+        }
+        .money-text {
+            color: #228B22; /* Forest Green color */
+        }
+        .sidebar {
+            transition: width 0.3s;
+        }
+        .sidebar:hover {
+            width: 250px;
+        }
+        .nav-item {
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .nav-item:hover {
+            background-color: #4a5568;
+            transform: translateX(10px);
+        }
+        .nav-icon {
+            transition: transform 0.3s;
+        }
+        .nav-item:hover .nav-icon {
+            transform: rotate(360deg);
+        }
+        .logout-btn {
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #4a5568;
+            transform: translateX(10px);
+        }
+        .logout-icon {
+            transition: transform 0.3s;
+        }
+        .logout-btn:hover .logout-icon {
+            transform: rotate(360deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 min-h-screen bg-gray-800 flex flex-col justify-between">
+        <div class="p-4">
+            <h1 class="text-3xl font-semibold mb-6 money-text">Wallet</h1>
+            <!-- Sidebar navigation items -->
+            <nav>
+                <ul>
+                    <li class="nav-item mb-4 flex items-center">
+                        <i class="nav-icon fas fa-coins mr-3"></i>
+                        <a href="#" class="text-gray-300 hover:text-white">Adicionar Despesa</a>
+                    </li>
+                    <li class="nav-item mb-4 flex items-center">
+                        <i class="nav-icon fas fa-money-bill-wave mr-3"></i>
+                        <a href="#" class="text-gray-300 hover:text-white">Adicionar Provento</a>
+                    </li>
+                    <li class="nav-item mb-4 flex items-center">
+                        <i class="nav-icon fas fa-star mr-3"></i>
+                        <a href="#" class="text-gray-300 hover:text-white">Metas</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="p-4">
+            <button class="logout-btn flex items-center space-x-2 w-full" onclick="window.location.href='{{ url_for('logout') }}'">
+                <i class="logout-icon fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+    <!-- Main content -->
+    <div class="flex-1 p-6">
+        <h2 class="text-2xl font-semibold mb-6 gold-text">Sentinel</h2>
+        <!-- Add your main content here -->
+    </div>
+</body>
+</html>

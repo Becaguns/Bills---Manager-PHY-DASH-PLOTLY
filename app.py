@@ -39,6 +39,62 @@ def get_hashed_password(username):
             cursor.close()
             connection.close()
 
+def create_user(username, password):
+    try:
+        connection = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+        cursor = connection.cursor()
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
+        connection.commit()
+    except Exception as e:
+        logging.error(f"Erro ao criar usuário no banco de dados: {e}")
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+def remove_user(username):
+    try:
+        connection = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM users WHERE username = %s", (username,))
+        connection.commit()
+    except Exception as e:
+        logging.error(f"Erro ao remover usuário no banco de dados: {e}")
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+def change_password(username, new_password):
+    try:
+        connection = psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+        cursor = connection.cursor()
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        cursor.execute("UPDATE users SET password = %s WHERE username = %s", (hashed_password, username))
+        connection.commit()
+    except Exception as e:
+        logging.error(f"Erro ao alterar a senha no banco de dados: {e}")
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -68,21 +124,49 @@ def login():
             flash('Login Failed. Please check your username and password.', 'error')
     return render_template('login.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        create_user(username, password)
+        flash('User registered successfully.', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/remove_user', methods=['POST'])
+def remove_user_route():
+    username = request.form['username']
+    password = request.form['password'].encode('utf-8')
+    hashed_password = get_hashed_password(username)
+    if hashed_password and bcrypt.checkpw(password, hashed_password.encode('utf-8')):
+        remove_user(username)
+        flash('User removed successfully.', 'success')
+    else:
+        flash('Failed to remove user. Please check your username and password.', 'error')
+    return redirect(url_for('login'))
+
+@app.route('/change_password', methods=['POST'])
+def change_password_route():
+    username = request.form['username']
+    current_password = request.form['current_password'].encode('utf-8')
+    new_password = request.form['new_password']
+    confirm_new_password = request.form['confirm_new_password']
+    hashed_password = get_hashed_password(username)
+    if hashed_password and bcrypt.checkpw(current_password, hashed_password.encode('utf-8')):
+        if new_password == confirm_new_password:
+            change_password(username, new_password)
+            flash('Password changed successfully.', 'success')
+        else:
+            flash('New passwords do not match.', 'error')
+    else:
+        flash('Failed to change password. Please check your username and current password.', 'error')
+    return redirect(url_for('login'))
+
 @app.route('/dashboard')
 def dashboard():
     if 'username' in session:
-        # Substitua essas linhas pelos dados reais do seu banco de dados
-        total_earnings = 1000.00
-        total_expenses = 500.00
-        goals = [
-            {"id": 1, "description": "Meta 1", "deadline": datetime.strptime("2025-12-31", "%Y-%m-%d"), "progress": 50, "current_amount": 500, "target_amount": 1000},
-            {"id": 2, "description": "Meta 2", "deadline": datetime.strptime("2025-06-30", "%Y-%m-%d"), "progress": 30, "current_amount": 300, "target_amount": 1000},
-        ]
-        transactions = [
-            {"description": "Compra 1", "category": "Alimentação", "date": datetime.strptime("2025-03-01", "%Y-%m-%d"), "amount": -50.00},
-            {"description": "Salário", "category": "Renda", "date": datetime.strptime("2025-03-01", "%Y-%m-%d"), "amount": 1500.00},
-        ]
-        return render_template('dashboard.html', total_earnings=total_earnings, total_expenses=total_expenses, goals=goals, transactions=transactions)
+        return render_template('dashboard.html')
     else:
         return redirect(url_for('login'))
 
@@ -90,36 +174,6 @@ def dashboard():
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
-
-@app.route('/add_expense')
-def add_expense():
-    # Lógica para adicionar despesas
-    return "Adicionar Despesas"
-
-@app.route('/add_earning')
-def add_earning():
-    # Lógica para adicionar ganhos
-    return "Adicionar Ganhos"
-
-@app.route('/add_goal')
-def add_goal():
-    # Lógica para adicionar metas
-    return "Adicionar Metas"
-
-@app.route('/update_goal/<int:goal_id>', methods=['POST'])
-def update_goal(goal_id):
-    # Lógica para atualizar metas
-    return f"Meta {goal_id} atualizada"
-
-@app.route('/earnings_vs_expenses')
-def earnings_vs_expenses():
-    # Lógica para o gráfico de Ganhos vs Despesas
-    return "Gráfico de Ganhos vs Despesas"
-
-@app.route('/expenses_distribution')
-def expenses_distribution():
-    # Lógica para o gráfico de Distribuição de Despesas
-    return "Gráfico de Distribuição de Despesas"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
