@@ -1,121 +1,257 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Despesas e Despesas Recentes</title>
-    <link rel="stylesheet" href="despesas.css">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Wallet Sentinel - Despesas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
-    <div class="rectangle-7">
-        <h1 class="adicionar-despesas">Adicionar Despesas</h1>
-        <div class="form-container">
-            <input type="text" class="text-input-4 input-data" placeholder="Dia">
-            <input type="text" class="text-input-4" placeholder="/">
-            <input type="text" class="text-input-4 input-data" placeholder="Mês">
-            <input type="text" class="text-input-4" placeholder="/">
-            <input type="text" class="text-input-1 input-data" placeholder="Ano">
-            <input type="text" class="text-input-3 input-descricao" placeholder="Descrição">
-            <input type="text" class="text-input-2 input-valor" placeholder="Valor">
-            <select class="text-input-6 input-categoria">
-                <option value="">Categoria</option>
-                <option value="alimentacao">Alimentação</option>
-                <option value="transporte">Transporte</option>
-                <option value="moradia">Moradia</option>
-            </select>
-            <div class="checkbox-1">
-                <input type="checkbox" id="recorrente">
-                <label for="recorrente">Recorrente</label>
-            </div>
-            <input type="text" class="text-input-7 input-inicio" placeholder="Início (dd/mm/aaaa)">
-            <input type="text" class="text-input-8 input-fim" placeholder="Fim (dd/mm/aaaa)">
-            <button class="button-13" id="adicionar-despesa-btn">Adicionar</button>
+<body class="bg-gray-900 text-white flex">
+    <div class="sidebar w-64 min-h-screen bg-gray-800 flex flex-col justify-between">
+        <div class="p-4">
+            <h1 class="text-3xl font-semibold mb-6 money-text">Wallet</h1>
+            <nav>
+                <ul>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded">
+                        <i class="nav-icon fas fa-coins mr-3"></i>
+                        <a href="{{ url_for('despesas') }}" class="text-gray-300 hover:text-white">Adicionar Despesa</a>
+                    </li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded">
+                        <i class="nav-icon fas fa-money-bill-wave mr-3"></i>
+                        <a href="#" class="text-gray-300 hover:text-white">Adicionar Provento</a>
+                    </li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded">
+                        <i class="nav-icon fas fa-star mr-3"></i>
+                        <a href="#" class="text-gray-300 hover:text-white">Metas</a>
+                    </li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded">
+                        <i class="nav-icon fas fa-chart-line mr-3"></i>
+                        <a href="#" class="text-gray-300 hover:text-white">Relatórios</a>
+                    </li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded">
+                        <i class="nav-icon fas fa-cog mr-3"></i>
+                        <a href="#" class="text-gray-300 hover:text-white">Configurações</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="p-4">
+            <button class="logout-btn flex items-center space-x-2 w-full p-2 rounded" onclick="window.location.href='{{ url_for('logout') }}'">
+                <i class="logout-icon fas fa-sign-out-alt mr-3"></i>
+                <span>Logout</span>
+            </button>
         </div>
     </div>
 
-    <div class="rectangle-7 despesas-recentes-container">
-        <h2 class="despesas-recentes-1">Despesas recentes</h2>
-        <p class="data-from-1-14-mar-2029">De 1-14 Mar,</p>
-        <table class="table-2">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Categoria</th>
-                    <th>Inicio</th>
-                    <th>Fim</th>
-                </tr>
-            </thead>
-            <tbody id="despesas-table-body">
-                <tr>
-                    <td>25 / 12 / 2025</td>
-                    <td>Pagamento Carro</td>
-                    <td>R$: 2.578,67</td>
-                    <td>Transporte</td>
-                    <td>25 / 01 / 2025</td>
-                    <td>25 / 12 / 2025</td>
-                </tr>
-            </tbody>
-        </table>
-        <a href="#" class="button-6">Ver todo histórico</a>
+    <div class="flex-1 p-6">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl">
+            <!-- Botão Voltar -->
+            <div class="mb-4">
+                <button onclick="window.location.href='{{ url_for('dashboard') }}'" class="action-btn back-btn">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+            </div>
+
+            <h2 class="text-2xl font-semibold mb-6">
+                <span class="star-glow purple-text">Incluir Despesa</span>
+            </h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-4">
+                        {% for category, message in messages %}
+                            <div class="bg-{% if category == 'success' %}green{% else %}red{% endif %}-500 text-white p-3 rounded mb-2">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <form id="despesa-form" method="post" action="{{ url_for('despesas') }}">
+                <div class="grid grid-cols-12 gap-4 items-end">
+                    <div class="col-span-2">
+                        <label for="data" class="form-label block">Data</label>
+                        <input type="date" id="data" name="data" class="form-control w-full" required>
+                    </div>
+                    <div class="col-span-4">
+                        <label for="descricao" class="form-label block">Descrição</label>
+                        <input type="text" id="descricao" name="descricao" class="form-control w-full" required>
+                    </div>
+                    <div class="col-span-2">
+                        <label for="valor" class="form-label block">Valor</label>
+                        <input type="text" id="valor" name="valor" class="form-control w-full text-right" placeholder="R$ 0,00" required>
+                    </div>
+                    <div class="col-span-2">
+                        <label for="tipo" class="form-label block">Tipo</label>
+                        <select id="tipo" name="tipo" class="form-control w-full">
+                            <option value="alimentacao">Alimentação</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="moradia">Moradia</option>
+                            <option value="saude">Saúde</option>
+                            <option value="educacao">Educação</option>
+                            <option value="lazer">Lazer</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2 custom-checkbox">
+                        <label for="recorrente" class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="recorrente" name="recorrente">
+                            <span class="ml-2 form-label">Recorrente</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="date-range" class="grid grid-cols-12 gap-4 mt-3 hidden">
+                    <div class="col-span-2">
+                        <label for="data_inicio" class="form-label block">Data Início</label>
+                        <input type="date" id="data_inicio" name="data_inicio" class="form-control w-full">
+                    </div>
+                    <div class="col-span-2">
+                        <label for="data_fim" class="form-label block">Data Fim</label>
+                        <input type="date" id="data_fim" name="data_fim" class="form-control w-full">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="action-btn w-full">
+                        <i class="fas fa-plus"></i> Incluir Despesa
+                    </button>
+                </div>
+            </form>
+
+            <h2 class="text-2xl font-semibold mt-8 mb-4">
+                <span class="star-glow purple-text">Despesas Recentes</span>
+            </h2>
+            <div class="flex gap-2 mb-4">
+                <button id="edit-btn" class="action-btn">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button id="delete-btn" class="action-btn delete-btn">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th width="5%"><div class="custom-checkbox"><input type="checkbox" id="select-all"></div></th>
+                            <th width="15%">Data</th>
+                            <th width="30%">Descrição</th>
+                            <th width="15%">Valor</th>
+                            <th width="15%">Tipo</th>
+                            <th width="10%">Recorrente</th>
+                            <th width="10%">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                            <tr>
+                                <td><div class="custom-checkbox"><input type="checkbox" class="row-checkbox"></div></td>
+                                <td>{{ expense[0].strftime('%d/%m/%Y') }}</td>
+                                <td>{{ expense[1] }}</td>
+                                <td>{{ "R$ {:.2f}".format(expense[2]).replace('.', ',') }}</td>
+                                <td>{{ expense[3] | capitalize }}</td>
+                                <td>{{ 'Sim' if expense[4] else 'Não' }}</td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <button class="text-blue-500 hover:text-blue-700 edit-item"><i class="fas fa-pencil-alt"></i></button>
+                                        <button class="text-red-500 hover:text-red-700 delete-item"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">Nenhuma despesa registrada.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const adicionarDespesaBotao = document.getElementById('adicionar-despesa-btn');
-            const tabelaDespesasBody = document.getElementById('despesas-table-body');
-            const inputDia = document.querySelector('.input-data:nth-child(1)');
-            const inputMes = document.querySelector('.input-data:nth-child(3)');
-            const inputAno = document.querySelector('.input-data:nth-child(5)');
-            const inputDescricao = document.querySelector('.input-descricao');
-            const inputValor = document.querySelector('.input-valor');
-            const selectCategoria = document.querySelector('.input-categoria');
-            const inputInicio = document.querySelector('.input-inicio');
-            const inputFim = document.querySelector('.input-fim');
-
-            adicionarDespesaBotao.addEventListener('click', function() {
-                const dia = inputDia.value;
-                const mes = inputMes.value;
-                const ano = inputAno.value;
-                const descricao = inputDescricao.value;
-                const valor = inputValor.value;
-                const categoria = selectCategoria.value;
-                const inicio = inputInicio.value;
-                const fim = inputFim.value;
-
-                if (dia && mes && ano && descricao && valor && categoria) {
-                    const novaLinha = tabelaDespesasBody.insertRow();
-
-                    const colunaData = novaLinha.insertCell();
-                    colunaData.textContent = `${dia} / ${mes} / ${ano}`;
-
-                    const colunaDescricao = novaLinha.insertCell();
-                    colunaDescricao.textContent = descricao;
-
-                    const colunaValor = novaLinha.insertCell();
-                    colunaValor.textContent = valor;
-
-                    const colunaCategoria = novaLinha.insertCell();
-                    colunaCategoria.textContent = categoria;
-
-                    const colunaInicio = novaLinha.insertCell();
-                    colunaInicio.textContent = inicio;
-
-                    const colunaFim = novaLinha.insertCell();
-                    colunaFim.textContent = fim;
-
-                    // Limpar os campos do formulário após adicionar
-                    inputDia.value = '';
-                    inputMes.value = '';
-                    inputAno.value = '';
-                    inputDescricao.value = '';
-                    inputValor.value = '';
-                    selectCategoria.value = '';
-                    inputInicio.value = '';
-                    inputFim.value = '';
+        $(document).ready(function() {
+            $('#recorrente').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#date-range').removeClass('hidden');
                 } else {
-                    alert('Por favor, preencha os campos obrigatórios (Data, Descrição, Valor e Categoria).');
+                    $('#date-range').addClass('hidden');
+                }
+            });
+
+            $('#valor').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value === '') return $(this).val('');
+                value = parseInt(value, 10) / 100;
+                $(this).val(value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            });
+
+            $('#select-all').change(function() {
+                $('.row-checkbox').prop('checked', $(this).prop('checked'));
+            });
+
+            $('#despesa-form').submit(function(e) {
+                let data = $('#data').val();
+                let descricao = $('#descricao').val();
+                let valor = $('#valor').val();
+                if (!data || !descricao || !valor) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    e.preventDefault();
+                    return false;
+                }
+                if ($('#recorrente').is(':checked')) {
+                    let dataInicio = $('#data_inicio').val();
+                    let dataFim = $('#data_fim').val();
+                    if (!dataInicio || !dataFim) {
+                        alert('Para despesas recorrentes, preencha as datas de início e fim.');
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
+            $('.edit-item').click(function() {
+                alert('Função de edição será implementada!');
+            });
+
+            $('.delete-item').click(function() {
+                if (confirm('Tem certeza que deseja excluir esta despesa?')) {
+                    $(this).closest('tr').fadeOut();
+                }
+            });
+
+            $('#delete-btn').click(function() {
+                let selectedItems = $('.row-checkbox:checked');
+                if (selectedItems.length === 0) {
+                    alert('Selecione pelo menos um item para excluir.');
+                    return;
+                }
+                if (confirm(`Tem certeza que deseja excluir ${selectedItems.length} item(s)?`)) {
+                    selectedItems.each(function() {
+                        $(this).closest('tr').fadeOut();
+                    });
+                }
+            });
+
+            $('#edit-btn').click(function() {
+                let selectedItems = $('.row-checkbox:checked');
+                if (selectedItems.length === 0) {
+                    alert('Selecione pelo menos um item para editar.');
+                    return;
+                }
+                if (selectedItems.length > 1) {
+                    alert('Selecione apenas um item para editar por vez.');
+                    return;
+                }
+                alert('Função de edição em massa será implementada!');
+            });
+
+            let today = new Date().toISOString().split('T')[0];
+            $('#data').val(today);
+
+            $('.nav-item a').click(function(e) {
+                if (!$(this).attr('href').startsWith('/')) {
+                    e.preventDefault();
+                    alert('Esta funcionalidade será implementada em breve!');
                 }
             });
         });
