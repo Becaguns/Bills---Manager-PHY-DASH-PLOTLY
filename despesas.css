@@ -1,0 +1,228 @@
+body {
+    font-family: sans-serif;
+    background-color: #111; /* Cor de fundo escura */
+    color: #fff;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinhar os elementos à esquerda */
+}
+
+.rectangle-7 {
+    background: linear-gradient(144deg, rgb(23, 23, 23) 0%, rgb(17, 17, 17) 99%);
+    border-radius: 16px;
+    padding: 20px; /* Aumentei o padding para dar espaço interno */
+    margin-bottom: 20px; /* Espaço entre os containers */
+    width: 1113px; /* Largura definida pelo CSS */
+    box-sizing: border-box; /* Incluir padding e border na largura */
+}
+
+.adicionar-despesas {
+    color: #8B5CF6;
+    font-family: "Nunito", sans-serif;
+    font-weight: 600;
+    font-size: 34px;
+    letter-spacing: -0.2px;
+    margin-bottom: 20px;
+}
+
+.form-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Quebrar os elementos em telas menores */
+}
+
+.text-input-4,
+.text-input-1,
+.text-input-5,
+.text-input-2,
+.text-input-7,
+.text-input-3,
+.text-input-6,
+.text-input-8,
+.text-input-9,
+.text-input-10 {
+    background: #000;
+    color: #fff;
+    border: 1px solid #F8FAFC; /* Cor da borda padrão */
+    border-radius: 3px;
+    font-family: "Helvetica", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    height: 32px; /* Altura padrão */
+}
+
+.text-input-4 { width: 47px; }
+.text-input-1 { width: 303px; border-color: #F8FAFC; }
+.text-input-5 { width: 107px; }
+.text-input-2 { width: 105px; border-color: #D4D4D4; }
+.text-input-7 { width: 107px; height: 28px; }
+.text-input-3 { width: 195px; border-color: #D4D4D4; }
+.text-input-6, .text-input-8, .text-input-9, .text-input-10 { width: 107px; }
+
+.date-picker-1,
+.date-picker-2,
+.date-picker-3 {
+    background: #8B5CF6;
+    color: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 3px;
+    font-family: "Helvetica", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    height: 32px;
+    text-align: left; /* Alinhar o texto à esquerda dentro do input */
+}
+
+.date-picker-1 { width: 180px; }
+.date-picker-2 { width: 134px; }
+.date-picker-3 { width: 138px; }
+
+.checkbox-1 {
+    width: auto; /* Ajustar largura ao conteúdo */
+    height: auto; /* Ajustar altura ao conteúdo */
+    color: #000; /* Cor do texto do label */
+    font-family: "Helvetica", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.checkbox-1 input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #606060;
+    background-color: #fff;
+    appearance: none; /* Remover aparência padrão */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.checkbox-1 input[type="checkbox"]:checked {
+    background-color: #8B5CF6;
+    border-color: #8B5CF6;
+}
+
+.button-8,
+.button-13 {
+    background: #000;
+    color: #8B5CF6;
+    border: 2px solid #8B5CF6;
+    border-radius: 3px;
+    font-family: "Helvetica", sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 0 10px;
+    height: 46px;
+    cursor: pointer;
+}
+
+.button-13 {
+    height: 32px;
+    font-size: 16px;
+    padding: 0 10px;
+}
+
+.despesas-recentes-container {
+    width: 1113px;
+    background: linear-gradient(144deg, rgb(23, 23, 23) 0%, rgb(17, 17, 17) 99%);
+    border-radius: 16px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.despesas-recentes-1 {
+    color: #fff;
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.2px;
+    margin-bottom: 10px;
+}
+
+.data-from-1-14-mar-2029 {
+    color: #fff;
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.3;
+    margin-bottom: 15px;
+}
+
+.table-2 {
+    width: 100%; /* Ocupar a largura do container */
+    border-collapse: collapse;
+    border: 1px dashed #FFFFFF1A;
+}
+
+.table-2 th, .table-2 td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #FFFFFF1A;
+}
+
+.table-2 th {
+    font-weight: bold;
+    color: #fff;
+}
+
+.table-2 tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.button-6 {
+    background: #262626;
+    color: #D4D4D4;
+    border-radius: 6px;
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    text-align: right;
+    padding: 10px 12px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    float: right;
+}
+
+.button-3 {
+    background: #000;
+    color: #fff;
+    border-radius: 6px;
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    text-align: right;
+    padding: 10px 16px 10px 48px; /* Ajustei o padding para o ícone (se houver) */
+    text-decoration: none;
+    display: inline-block;
+    position: relative; /* Para posicionar o ícone */
+}
+
+.calendar-icon-1 {
+    width: 18px;
+    height: 18px;
+    background: #525252;
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 2px; /* Opcional: arredondar o ícone */
+}
+
+/* Estilos específicos para os campos de entrada */
+.input-data { width: 100px; }
+.input-descricao { width: 250px; }
+.input-valor { width: 120px; }
+.input-categoria { width: 150px; }
+.input-inicio, .input-fim { width: 120px; }
