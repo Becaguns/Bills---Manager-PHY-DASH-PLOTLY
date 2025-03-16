@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Despesas e Despesas Recentes</title>
+    <link rel="stylesheet" href="despesas.css">
+</head>
+<body>
+    <div class="rectangle-7">
+        <h1 class="adicionar-despesas">Adicionar Despesas</h1>
+        <div class="form-container">
+            <input type="text" class="text-input-4 input-data" placeholder="Dia">
+            <input type="text" class="text-input-4" placeholder="/">
+            <input type="text" class="text-input-4 input-data" placeholder="Mês">
+            <input type="text" class="text-input-4" placeholder="/">
+            <input type="text" class="text-input-1 input-data" placeholder="Ano">
+            <input type="text" class="text-input-3 input-descricao" placeholder="Descrição">
+            <input type="text" class="text-input-2 input-valor" placeholder="Valor">
+            <select class="text-input-6 input-categoria">
+                <option value="">Categoria</option>
+                <option value="alimentacao">Alimentação</option>
+                <option value="transporte">Transporte</option>
+                <option value="moradia">Moradia</option>
+            </select>
+            <div class="checkbox-1">
+                <input type="checkbox" id="recorrente">
+                <label for="recorrente">Recorrente</label>
+            </div>
+            <input type="text" class="text-input-7 input-inicio" placeholder="Início (dd/mm/aaaa)">
+            <input type="text" class="text-input-8 input-fim" placeholder="Fim (dd/mm/aaaa)">
+            <button class="button-13" id="adicionar-despesa-btn">Adicionar</button>
+        </div>
+    </div>
+
+    <div class="rectangle-7 despesas-recentes-container">
+        <h2 class="despesas-recentes-1">Despesas recentes</h2>
+        <p class="data-from-1-14-mar-2029">De 1-14 Mar,</p>
+        <table class="table-2">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Categoria</th>
+                    <th>Inicio</th>
+                    <th>Fim</th>
+                </tr>
+            </thead>
+            <tbody id="despesas-table-body">
+                <tr>
+                    <td>25 / 12 / 2025</td>
+                    <td>Pagamento Carro</td>
+                    <td>R$: 2.578,67</td>
+                    <td>Transporte</td>
+                    <td>25 / 01 / 2025</td>
+                    <td>25 / 12 / 2025</td>
+                </tr>
+            </tbody>
+        </table>
+        <a href="#" class="button-6">Ver todo histórico</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adicionarDespesaBotao = document.getElementById('adicionar-despesa-btn');
+            const tabelaDespesasBody = document.getElementById('despesas-table-body');
+            const inputDia = document.querySelector('.input-data:nth-child(1)');
+            const inputMes = document.querySelector('.input-data:nth-child(3)');
+            const inputAno = document.querySelector('.input-data:nth-child(5)');
+            const inputDescricao = document.querySelector('.input-descricao');
+            const inputValor = document.querySelector('.input-valor');
+            const selectCategoria = document.querySelector('.input-categoria');
+            const inputInicio = document.querySelector('.input-inicio');
+            const inputFim = document.querySelector('.input-fim');
+
+            adicionarDespesaBotao.addEventListener('click', function() {
+                const dia = inputDia.value;
+                const mes = inputMes.value;
+                const ano = inputAno.value;
+                const descricao = inputDescricao.value;
+                const valor = inputValor.value;
+                const categoria = selectCategoria.value;
+                const inicio = inputInicio.value;
+                const fim = inputFim.value;
+
+                if (dia && mes && ano && descricao && valor && categoria) {
+                    const novaLinha = tabelaDespesasBody.insertRow();
+
+                    const colunaData = novaLinha.insertCell();
+                    colunaData.textContent = `${dia} / ${mes} / ${ano}`;
+
+                    const colunaDescricao = novaLinha.insertCell();
+                    colunaDescricao.textContent = descricao;
+
+                    const colunaValor = novaLinha.insertCell();
+                    colunaValor.textContent = valor;
+
+                    const colunaCategoria = novaLinha.insertCell();
+                    colunaCategoria.textContent = categoria;
+
+                    const colunaInicio = novaLinha.insertCell();
+                    colunaInicio.textContent = inicio;
+
+                    const colunaFim = novaLinha.insertCell();
+                    colunaFim.textContent = fim;
+
+                    // Limpar os campos do formulário após adicionar
+                    inputDia.value = '';
+                    inputMes.value = '';
+                    inputAno.value = '';
+                    inputDescricao.value = '';
+                    inputValor.value = '';
+                    selectCategoria.value = '';
+                    inputInicio.value = '';
+                    inputFim.value = '';
+                } else {
+                    alert('Por favor, preencha os campos obrigatórios (Data, Descrição, Valor e Categoria).');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
