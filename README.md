@@ -175,4 +175,17 @@ const actions = [
   }
 ];
 
+
+5- Incluir funcao ao dashboard criando um novo arquivo chamado despesas.html
+  * funcao do arquivo, quando clicar no botao presente hoje no dashboard, abrir tela de inclusao de despeas na tela ao lado da sidebar
+      * Comportamento ao clicar no botao de incluir despesas a tela ao lado faz um flip como se tivesse girando a pagina e mostrando a pagina de traz.
+          * Nessa nova pagina teremos os seguinte elementos todos na mesma linha 
+              1 selecionador data no formato ddmmaaaa, com a descricao encima
+                Este botao precisa ter um mini calendario para selecao da data
+              2  Caixa de texto para inclusao da descricao da despesa
+              3  caixa de texto para inclusao do valor da despesa com mascara R$ = real brasileiro BRL   acima desse campo um checkbox para tratar se a divida e recorrente
+              4  Uma caixa de  texto para inclusao do tipo de despesa obs esse pode ser um select box para selecionar os tipos de despesa mais comuns do ser humando uns 7 tipos basicos esta otimo
+              5 dois date pickers igual ao primeiro mas esses serao condicionados ao checkbox de recorencia se for marcado eles serao ativados para inserir uma data de incio e outra de fim, se nao for marcado sera                   considerado com conta de pagamento unico
+              6 Abaixo dessa linha uma planilha ira mostrar as despesas incluidas recentemente  acima dessa planila tera um botao editar cada linha da planilha tera um checkbox para que se ele tiver selecionado 
+                essa linha se torna editavel mas somente ela e um botao o botao de editar da um flip  e vira botao de salvar.
           
