@@ -3,64 +3,50 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Wallet Sentinel - Despesas</title>
+    <title>Wallet - Sentinel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="bg-gray-900 text-white flex">
     <div class="sidebar w-64 min-h-screen bg-gray-800 flex flex-col justify-between">
         <div class="p-4">
-            <h1 class="text-3xl font-semibold mb-6 money-text">Wallet</h1>
+            <div class="flex items-center space-x-2">
+                <h1 class="text-2xl font-bold mb-6 money-text">Wallet</h1>
+                <span class="text-2xl font-bold mb-6 purple-text">Sentinel</span>
+            </div>
             <nav>
                 <ul>
-                    <li class="nav-item mb-4 flex items-center p-2 rounded">
-                        <i class="nav-icon fas fa-coins mr-3"></i>
-                        <a href="{{ url_for('despesas') }}" class="text-gray-300 hover:text-white">Adicionar Despesa</a>
-                    </li>
-                    <li class="nav-item mb-4 flex items-center p-2 rounded">
-                        <i class="nav-icon fas fa-money-bill-wave mr-3"></i>
-                        <a href="#" class="text-gray-300 hover:text-white">Adicionar Provento</a>
-                    </li>
-                    <li class="nav-item mb-4 flex items-center p-2 rounded">
-                        <i class="nav-icon fas fa-star mr-3"></i>
-                        <a href="#" class="text-gray-300 hover:text-white">Metas</a>
-                    </li>
-                    <li class="nav-item mb-4 flex items-center p-2 rounded">
-                        <i class="nav-icon fas fa-chart-line mr-3"></i>
-                        <a href="#" class="text-gray-300 hover:text-white">Relatórios</a>
-                    </li>
-                    <li class="nav-item mb-4 flex items-center p-2 rounded">
-                        <i class="nav-icon fas fa-cog mr-3"></i>
-                        <a href="#" class="text-gray-300 hover:text-white">Configurações</a>
-                    </li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded"><i class="nav-icon fas fa-tachometer-alt mr-3"></i><a href="{{ url_for('dashboard') }}" class="text-gray-300 hover:text-white">Dashboard</a></li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded bg-gray-700"><i class="nav-icon fas fa-coins mr-3"></i><a href="{{ url_for('despesas') }}" class="text-white">Adicionar Despesa</a></li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded"><i class="nav-icon fas fa-money-bill-wave mr-3"></i><a href="{{ url_for('proventos') }}" class="text-gray-300 hover:text-white">Adicionar Provento</a></li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded"><i class="nav-icon fas fa-star mr-3"></i><a href="{{ url_for('metas') }}" class="text-gray-300 hover:text-white">Metas</a></li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded"><i class="nav-icon fas fa-chart-line mr-3"></i><a href="{{ url_for('relatorios') }}" class="text-gray-300 hover:text-white">Relatórios</a></li>
+                    <li class="nav-item mb-4 flex items-center p-2 rounded"><i class="nav-icon fas fa-cog mr-3"></i><a href="{{ url_for('configuracoes') }}" class="text-gray-300 hover:text-white">Configurações</a></li>
                 </ul>
             </nav>
         </div>
         <div class="p-4">
             <button class="logout-btn flex items-center space-x-2 w-full p-2 rounded" onclick="window.location.href='{{ url_for('logout') }}'">
-                <i class="logout-icon fas fa-sign-out-alt mr-3"></i>
-                <span>Logout</span>
+                <i class="logout-icon fas fa-sign-out-alt mr-3"></i><span>Logout</span>
             </button>
         </div>
     </div>
 
     <div class="flex-1 p-6">
         <div class="bg-gray-800 p-6 rounded-lg shadow-xl">
-            <!-- Botão Voltar -->
-            <div class="mb-4">
-                <button onclick="window.location.href='{{ url_for('dashboard') }}'" class="action-btn back-btn">
-                    <i class="fas fa-arrow-left"></i> Voltar
-                </button>
+            <div class="mb-6">
+                <button onclick="window.location.href='{{ url_for('dashboard') }}'" class="action-btn back-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
             </div>
 
-            <h2 class="text-2xl font-semibold mb-6">
-                <span class="star-glow purple-text">Incluir Despesa</span>
-            </h2>
+            <h2 class="text-2xl font-semibold mb-6"><span class="purple-text">Incluir Despesa</span></h2>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="mb-4">
+                    <div class="mb-6">
                         {% for category, message in messages %}
                             <div class="bg-{% if category == 'success' %}green{% else %}red{% endif %}-500 text-white p-3 rounded mb-2">{{ message }}</div>
                         {% endfor %}
@@ -68,22 +54,168 @@
                 {% endif %}
             {% endwith %}
             <form id="despesa-form" method="post" action="{{ url_for('despesas') }}">
-                <div class="grid grid-cols-12 gap-4 items-end">
+                <div class="grid grid-cols-12 gap-4 mb-4">
                     <div class="col-span-2">
-                        <label for="data" class="form-label block">Data</label>
-                        <input type="date" id="data" name="data" class="form-control w-full" required>
+                        <label for="data" class="form-label block text-sm">Data</label>
+                        <input type="text" id="data" name="data" class="form-control w-full" required>
                     </div>
-                    <div class="col-span-4">
-                        <label for="descricao" class="form-label block">Descrição</label>
+                    <div class="col-span-3">
+                        <label for="descricao" class="form-label block text-sm">Descrição</label>
                         <input type="text" id="descricao" name="descricao" class="form-control w-full" required>
                     </div>
                     <div class="col-span-2">
-                        <label for="valor" class="form-label block">Valor</label>
+                        <label for="valor" class="form-label block text-sm">Valor</label>
                         <input type="text" id="valor" name="valor" class="form-control w-full text-right" placeholder="R$ 0,00" required>
                     </div>
                     <div class="col-span-2">
-                        <label for="tipo" class="form-label block">Tipo</label>
+                        <label for="tipo" class="form-label block text-sm">Tipo</label>
                         <select id="tipo" name="tipo" class="form-control w-full">
+                            <option value="alimentacao">Alimentação</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="moradia">Moradia</option>
+                            <option value="saude">Saúde</option>
+                            <option value="educacao">Educação</option>
+                            <option value="lazer">Lazer</option>
+                            <option value="outros">Outros</option>
+                            {% for category, type in custom_categories %}
+                                {% if type == 'expense' %}
+                                    <option value="{{ category }}">{{ category|capitalize }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-span-3 flex gap-4">
+                        <div>
+                            <label class="form-label block text-sm">Vencimento?</label>
+                            <label class="toggle-switch flex items-center">
+                                <input type="checkbox" id="tem_vencimento" name="tem_vencimento">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="form-label block text-sm">Dia a Dia?</label>
+                            <div class="custom-checkbox">
+                                <input type="checkbox" id="daily_expense" name="daily_expense">
+                                <label for="daily_expense">Sim</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label block text-sm">Recorrente?</label>
+                            <label class="toggle-switch flex items-center">
+                                <input type="checkbox" id="recorrente" name="recorrente">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 gap-4 mb-4">
+                    <div id="due-date-container" class="col-span-2 hidden">
+                        <label for="due_date" class="form-label block text-sm">Vencimento</label>
+                        <input type="text" id="due_date" name="due_date" class="form-control w-full" disabled>
+                    </div>
+                    <div id="date-range" class="col-span-4 grid grid-cols-2 gap-4 hidden">
+                        <div>
+                            <label for="data_inicio" class="form-label block text-sm">Início</label>
+                            <input type="text" id="data_inicio" name="data_inicio" class="form-control w-full">
+                        </div>
+                        <div>
+                            <label for="data_fim" class="form-label block text-sm">Fim</label>
+                            <input type="text" id="data_fim" name="data_fim" class="form-control w-full">
+                        </div>
+                    </div>
+                    <div class="col-span-2">
+                        <label for="total_parcels" class="form-label block text-sm">Parcelas</label>
+                        <input type="number" id="total_parcels" name="total_parcels" min="1" max="120" class="form-control w-full" placeholder="1">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="action-btn w-full py-3"><i class="fas fa-plus mr-2"></i> Incluir Despesa</button>
+                </div>
+            </form>
+
+            <h2 class="text-2xl font-semibold mt-10 mb-6"><span class="purple-text">Despesas Recentes</span></h2>
+            <div class="flex gap-2 mb-4">
+                <button id="edit-btn" class="action-btn edit-btn"><i class="fas fa-edit"></i> Editar</button>
+                <button id="delete-btn" class="action-btn delete-btn"><i class="fas fa-trash"></i> Excluir</button>
+                <button id="pay-btn" class="action-btn paid-btn"><i class="fas fa-check"></i> Pagar</button>
+                <select id="status-filter" class="form-control">
+                    <option value="all">Todos</option>
+                    <option value="pending">Pendentes</option>
+                    <option value="paid">Pagas</option>
+                </select>
+            </div>
+            <div class="mb-4 text-right">
+                <span class="text-lg font-semibold text-gray-200">Total Pendente: <span id="total-pending" class="text-red-500">R$ 0,00</span></span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th width="5%"><div class="custom-checkbox"><input type="checkbox" id="select-all"></div></th>
+                            <th width="15%">Data</th>
+                            <th width="25%">Descrição</th>
+                            <th width="15%">Valor</th>
+                            <th width="15%">Tipo</th>
+                            <th width="10%">Recorrente</th>
+                            <th width="15%">Vencimento</th>
+                            <th width="10%">Parcelas</th>
+                            <th width="10%">Status</th>
+                            <th width="10%">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-table-body">
+                        {% for expense in expenses %}
+                            <tr data-expense-id="{{ expense[0] }}" class="{{ 'pending' if expense[9] == 'Pendente' else 'paid' }}">
+                                <td><div class="custom-checkbox"><input type="checkbox" class="row-checkbox"></div></td>
+                                <td>{{ expense[1].strftime('%d/%m/%Y') }}</td>
+                                <td>{{ expense[2] }}</td>
+                                <td>{{ "R$ {:.2f}".format(expense[3]).replace('.', ',') }}</td>
+                                <td>{{ expense[4] | capitalize }}</td>
+                                <td>{{ 'Sim' if expense[5] else 'Não' }}</td>
+                                <td>{{ expense[8].strftime('%d/%m/%Y') if expense[8] else 'N/A' }}</td>
+                                <td>{{ expense[11] ~ '/' ~ expense[10] if expense[10] > 0 else 'N/A' }}</td>
+                                <td>{{ expense[9] }}</td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <button class="edit-btn edit-item" data-expense-id="{{ expense[0] }}"><i class="fas fa-pen-to-square"></i></button>
+                                        <form action="{{ url_for('delete_expense_route', expense_id=expense[0]) }}" method="POST" class="delete-form" style="display:inline;">
+                                            <button type="submit" class="delete-btn delete-item"><i class="fas fa-trash-can"></i></button>
+                                        </form>
+                                        <button class="paid-btn pay-item" data-expense-id="{{ expense[0] }}" {% if expense[9] == 'Paga' %}disabled{% endif %}><i class="fas fa-check-circle"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="10" class="text-center">Nenhuma despesa registrada.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="editExpenseModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-2xl">
+            <h2 class="text-2xl font-semibold mb-6 text-center"><span class="purple-text">Editar Despesa</span></h2>
+            <form id="edit-expense-form" method="post" action="{{ url_for('despesas') }}">
+                <input type="hidden" id="edit_expense_id" name="edit_expense_id">
+                <div class="grid grid-cols-12 gap-4 mb-4">
+                    <div class="col-span-2">
+                        <label for="edit_data" class="form-label block text-sm">Data</label>
+                        <input type="text" id="edit_data" name="data" class="form-control w-full" required>
+                    </div>
+                    <div class="col-span-3">
+                        <label for="edit_descricao" class="form-label block text-sm">Descrição</label>
+                        <input type="text" id="edit_descricao" name="descricao" class="form-control w-full" required>
+                    </div>
+                    <div class="col-span-2">
+                        <label for="edit_valor" class="form-label block text-sm">Valor</label>
+                        <input type="text" id="edit_valor" name="valor" class="form-control w-full text-right" required>
+                    </div>
+                    <div class="col-span-2">
+                        <label for="edit_tipo" class="form-label block text-sm">Tipo</label>
+                        <select id="edit_tipo" name="tipo" class="form-control w-full">
                             <option value="alimentacao">Alimentação</option>
                             <option value="transporte">Transporte</option>
                             <option value="moradia">Moradia</option>
@@ -93,168 +225,345 @@
                             <option value="outros">Outros</option>
                         </select>
                     </div>
-                    <div class="col-span-2 custom-checkbox">
-                        <label for="recorrente" class="flex items-center cursor-pointer">
-                            <input type="checkbox" id="recorrente" name="recorrente">
-                            <span class="ml-2 form-label">Recorrente</span>
-                        </label>
+                    <div class="col-span-3 flex gap-4">
+                        <div>
+                            <label class="form-label block text-sm">Vencimento?</label>
+                            <label class="toggle-switch flex items-center">
+                                <input type="checkbox" id="edit_tem_vencimento" name="tem_vencimento">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="form-label block text-sm">Recorrente?</label>
+                            <label class="toggle-switch flex items-center">
+                                <input type="checkbox" id="edit_recorrente" name="recorrente">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div id="date-range" class="grid grid-cols-12 gap-4 mt-3 hidden">
-                    <div class="col-span-2">
-                        <label for="data_inicio" class="form-label block">Data Início</label>
-                        <input type="date" id="data_inicio" name="data_inicio" class="form-control w-full">
+                <div class="grid grid-cols-12 gap-4 mb-4">
+                    <div id="edit-due-date-container" class="col-span-2 hidden">
+                        <label for="edit_due_date" class="form-label block text-sm">Vencimento</label>
+                        <input type="text" id="edit_due_date" name="due_date" class="form-control w-full" disabled>
                     </div>
-                    <div class="col-span-2">
-                        <label for="data_fim" class="form-label block">Data Fim</label>
-                        <input type="date" id="data_fim" name="data_fim" class="form-control w-full">
+                    <div id="edit-date-range" class="col-span-4 grid grid-cols-2 gap-4 hidden">
+                        <div>
+                            <label for="edit_data_inicio" class="form-label block text-sm">Início</label>
+                            <input type="text" id="edit_data_inicio" name="data_inicio" class="form-control w-full">
+                        </div>
+                        <div>
+                            <label for="edit_data_fim" class="form-label block text-sm">Fim</label>
+                            <input type="text" id="edit_data_fim" name="data_fim" class="form-control w-full">
+                        </div>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <button type="submit" class="action-btn w-full">
-                        <i class="fas fa-plus"></i> Incluir Despesa
-                    </button>
+                <div class="mt-6 flex gap-4 justify-center">
+                    <button type="submit" class="action-btn"><i class="fas fa-save mr-2"></i> Salvar</button>
+                    <button type="button" onclick="closeModal('editExpenseModal')" class="action-btn delete-btn"><i class="fas fa-times mr-2"></i> Cancelar</button>
                 </div>
             </form>
-
-            <h2 class="text-2xl font-semibold mt-8 mb-4">
-                <span class="star-glow purple-text">Despesas Recentes</span>
-            </h2>
-            <div class="flex gap-2 mb-4">
-                <button id="edit-btn" class="action-btn">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
-                <button id="delete-btn" class="action-btn delete-btn">
-                    <i class="fas fa-trash"></i> Excluir
-                </button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th width="5%"><div class="custom-checkbox"><input type="checkbox" id="select-all"></div></th>
-                            <th width="15%">Data</th>
-                            <th width="30%">Descrição</th>
-                            <th width="15%">Valor</th>
-                            <th width="15%">Tipo</th>
-                            <th width="10%">Recorrente</th>
-                            <th width="10%">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for expense in expenses %}
-                            <tr>
-                                <td><div class="custom-checkbox"><input type="checkbox" class="row-checkbox"></div></td>
-                                <td>{{ expense[0].strftime('%d/%m/%Y') }}</td>
-                                <td>{{ expense[1] }}</td>
-                                <td>{{ "R$ {:.2f}".format(expense[2]).replace('.', ',') }}</td>
-                                <td>{{ expense[3] | capitalize }}</td>
-                                <td>{{ 'Sim' if expense[4] else 'Não' }}</td>
-                                <td>
-                                    <div class="flex gap-2">
-                                        <button class="text-blue-500 hover:text-blue-700 edit-item"><i class="fas fa-pencil-alt"></i></button>
-                                        <button class="text-red-500 hover:text-red-700 delete-item"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">Nenhuma despesa registrada.</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
         </div>
+    </div>
+
+    <!-- Modal de Pagamento -->
+    <div id="payExpenseModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md">
+            <h2 class="text-2xl font-semibold mb-6 text-center"><span class="purple-text">Pagar Despesa</span></h2>
+            <form id="pay-expense-form" method="post" action="">
+                <input type="hidden" id="pay_expense_id" name="expense_id">
+                <div class="mb-4">
+                    <p id="pay-description" class="text-gray-300"></p>
+                    <p id="pay-amount" class="text-gray-300 mt-2"></p>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label block text-sm">Ação ao Pagar</label>
+                    <div class="flex items-center gap-4">
+                        <label class="flex items-center">
+                            <input type="radio" name="replicate" value="yes" class="form-control mr-2" checked>
+                            <span>Replicar Próxima Parcela</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="replicate" value="no" class="form-control mr-2">
+                            <span>Não Replicar</span>
+                        </label>
+                    </div>
+                    <label class="flex items-center mt-2">
+                        <input type="checkbox" name="quit_all" value="yes" class="form-control mr-2">
+                        <span>Quitar Todas as Parcelas</span>
+                    </label>
+                </div>
+                <div class="flex gap-4 justify-center">
+                    <button type="submit" class="action-btn paid-btn"><i class="fas fa-check mr-2"></i> Confirmar Pagamento</button>
+                    <button type="button" onclick="closeModal('payExpenseModal')" class="action-btn delete-btn"><i class="fas fa-times mr-2"></i> Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Notificações -->
+    <div id="notification-modal" class="fixed top-5 right-5 w-72 bg-gray-800 rounded-lg shadow-xl z-50 hidden">
+        <div class="notification-header flex justify-between items-center bg-[#228B22] text-white p-3 rounded-t-lg">
+            <h4 class="text-lg font-semibold">Notificações</h4>
+            <button id="close-notifications" class="text-white hover:text-gray-300"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="notification-body" class="p-3 max-h-48 overflow-y-auto"></div>
     </div>
 
     <script>
         $(document).ready(function() {
+            // Inicializar Flatpickr
+            flatpickr('#data, #due_date, #data_inicio, #data_fim, #edit_data, #edit_due_date, #edit_data_inicio, #edit_data_fim', {
+                dateFormat: 'd/m/Y',
+                defaultDate: new Date()
+            });
+
+            // Formatação de valores
+            $('#valor, #edit_valor').on('input', function() {
+                let value = $(this).val().replace(/[^\d]/g, '');
+                if (!value) return $(this).val('R$ 0,00');
+                value = (parseInt(value) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                $(this).val(value);
+            });
+
+            // Alternância de campos
+            $('#tem_vencimento').change(function() {
+                const isChecked = $(this).is(':checked');
+                $('#due_date').prop('disabled', !isChecked).prop('required', isChecked);
+                $('#due-date-container').toggleClass('hidden', !isChecked);
+            });
+
             $('#recorrente').change(function() {
-                if ($(this).is(':checked')) {
-                    $('#date-range').removeClass('hidden');
-                } else {
-                    $('#date-range').addClass('hidden');
-                }
+                $('#date-range').toggleClass('hidden', !$(this).is(':checked'));
             });
 
-            $('#valor').on('input', function() {
-                let value = $(this).val().replace(/\D/g, '');
-                if (value === '') return $(this).val('');
-                value = parseInt(value, 10) / 100;
-                $(this).val(value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            $('#edit_tem_vencimento').change(function() {
+                const isChecked = $(this).is(':checked');
+                $('#edit_due_date').prop('disabled', !isChecked).prop('required', isChecked);
+                $('#edit-due-date-container').toggleClass('hidden', !isChecked);
             });
 
+            $('#edit_recorrente').change(function() {
+                $('#edit-date-range').toggleClass('hidden', !$(this).is(':checked'));
+            });
+
+            // Validação e envio de formulário de adição
+            $('#despesa-form').submit(function(e) {
+                e.preventDefault();
+                const formData = $(this).serializeArray();
+                const valor = $('#valor').val().replace(/[^\d]/g, '') / 100;
+                formData.find(f => f.name === 'valor').value = valor;
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        updateExpenseTable();
+                        $('#despesa-form')[0].reset();
+                        flatpickr('#data, #due_date').setDate(new Date());
+                        $('#due-date-container, #date-range').addClass('hidden');
+                        $('#tem_vencimento, #daily_expense, #recorrente').prop('checked', false);
+                    },
+                    error: function() { alert('Erro ao adicionar despesa.'); }
+                });
+            });
+
+            // Validação e envio de formulário de edição
+            $('#edit-expense-form').submit(function(e) {
+                e.preventDefault();
+                const formData = $(this).serializeArray();
+                const valor = $('#edit_valor').val().replace(/[^\d]/g, '') / 100;
+                formData.find(f => f.name === 'valor').value = valor;
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        updateExpenseTable();
+                        closeModal('editExpenseModal');
+                    },
+                    error: function() { alert('Erro ao editar despesa.'); }
+                });
+            });
+
+            // Seleção de todos
             $('#select-all').change(function() {
                 $('.row-checkbox').prop('checked', $(this).prop('checked'));
             });
 
-            $('#despesa-form').submit(function(e) {
-                let data = $('#data').val();
-                let descricao = $('#descricao').val();
-                let valor = $('#valor').val();
-                if (!data || !descricao || !valor) {
-                    alert('Por favor, preencha todos os campos obrigatórios.');
-                    e.preventDefault();
-                    return false;
-                }
-                if ($('#recorrente').is(':checked')) {
-                    let dataInicio = $('#data_inicio').val();
-                    let dataFim = $('#data_fim').val();
-                    if (!dataInicio || !dataFim) {
-                        alert('Para despesas recorrentes, preencha as datas de início e fim.');
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            });
-
+            // Edição
             $('.edit-item').click(function() {
-                alert('Função de edição será implementada!');
+                const expenseId = $(this).data('expense-id');
+                const row = $(this).closest('tr');
+                const date = row.find('td:eq(1)').text();
+                const description = row.find('td:eq(2)').text();
+                const amount = row.find('td:eq(3)').text();
+                const category = row.find('td:eq(4)').text().toLowerCase();
+                const recurring = row.find('td:eq(5)').text() === 'Sim';
+                const due_date = row.find('td:eq(6)').text();
+
+                $('#edit_expense_id').val(expenseId);
+                $('#edit_data').val(date);
+                $('#edit_descricao').val(description.split(' (Parcela')[0]);
+                $('#edit_valor').val(amount);
+                $('#edit_tipo').val(category);
+                $('#edit_recorrente').prop('checked', recurring);
+                $('#edit-date-range').toggleClass('hidden', !recurring);
+                $('#edit_tem_vencimento').prop('checked', due_date !== 'N/A');
+                $('#edit_due_date').val(due_date !== 'N/A' ? due_date : '').prop('disabled', due_date === 'N/A').prop('required', due_date !== 'N/A');
+                $('#edit-due-date-container').toggleClass('hidden', due_date === 'N/A');
+
+                openModal('editExpenseModal');
             });
 
-            $('.delete-item').click(function() {
+            // Exclusão
+            $('.delete-form').submit(function(e) {
+                e.preventDefault();
                 if (confirm('Tem certeza que deseja excluir esta despesa?')) {
-                    $(this).closest('tr').fadeOut();
-                }
-            });
-
-            $('#delete-btn').click(function() {
-                let selectedItems = $('.row-checkbox:checked');
-                if (selectedItems.length === 0) {
-                    alert('Selecione pelo menos um item para excluir.');
-                    return;
-                }
-                if (confirm(`Tem certeza que deseja excluir ${selectedItems.length} item(s)?`)) {
-                    selectedItems.each(function() {
-                        $(this).closest('tr').fadeOut();
+                    const form = $(this);
+                    const row = form.closest('tr');
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        success: function() {
+                            row.fadeOut(300, function() { $(this).remove(); updateTotalPending(); });
+                        },
+                        error: function() { alert('Erro ao deletar despesa.'); }
                     });
                 }
             });
 
-            $('#edit-btn').click(function() {
-                let selectedItems = $('.row-checkbox:checked');
-                if (selectedItems.length === 0) {
-                    alert('Selecione pelo menos um item para editar.');
-                    return;
-                }
-                if (selectedItems.length > 1) {
-                    alert('Selecione apenas um item para editar por vez.');
-                    return;
-                }
-                alert('Função de edição em massa será implementada!');
-            });
-
-            let today = new Date().toISOString().split('T')[0];
-            $('#data').val(today);
-
-            $('.nav-item a').click(function(e) {
-                if (!$(this).attr('href').startsWith('/')) {
-                    e.preventDefault();
-                    alert('Esta funcionalidade será implementada em breve!');
+            $('#delete-btn').click(function() {
+                const selectedItems = $('.row-checkbox:checked');
+                if (selectedItems.length === 0) return alert('Selecione pelo menos um item para excluir.');
+                if (confirm(`Tem certeza que deseja excluir ${selectedItems.length} item(s)?`)) {
+                    selectedItems.each(function() {
+                        const row = $(this).closest('tr');
+                        const expenseId = row.data('expense-id');
+                        $.ajax({
+                            url: `/delete_expense/${expenseId}`,
+                            type: 'POST',
+                            success: function() {
+                                row.fadeOut(300, function() { $(this).remove(); updateTotalPending(); });
+                            },
+                            error: function() { alert('Erro ao deletar despesa.'); }
+                        });
+                    });
                 }
             });
+
+            // Pagamento
+            $('.pay-item').click(function() {
+                const expenseId = $(this).data('expense-id');
+                const row = $(this).closest('tr');
+                const description = row.find('td:eq(2)').text();
+                const amount = row.find('td:eq(3)').text();
+
+                $('#pay_expense_id').val(expenseId);
+                $('#pay-description').text(`Descrição: ${description}`);
+                $('#pay-amount').text(`Valor: ${amount}`);
+                $('#pay-expense-form').attr('action', `/mark_expense_paid/${expenseId}`);
+
+                openModal('payExpenseModal');
+            });
+
+            $('#pay-expense-form').submit(function(e) {
+                e.preventDefault();
+                const form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function() {
+                        updateExpenseTable();
+                        closeModal('payExpenseModal');
+                    },
+                    error: function() { alert('Erro ao processar o pagamento.'); }
+                });
+            });
+
+            $('#pay-btn').click(function() {
+                const selectedItems = $('.row-checkbox:checked');
+                if (selectedItems.length === 0) return alert('Selecione pelo menos um item para pagar.');
+                if (selectedItems.length > 1) return alert('Selecione apenas um item para pagar por vez.');
+                const expenseId = selectedItems.closest('tr').data('expense-id');
+                $(`.pay-item[data-expense-id="${expenseId}"]`).trigger('click');
+            });
+
+            // Filtro por status
+            $('#status-filter').change(function() {
+                const filter = $(this).val();
+                $('#expense-table-body tr').each(function() {
+                    const status = $(this).find('td:eq(8)').text();
+                    $(this).toggle(filter === 'all' || (filter === 'pending' && status === 'Pendente') || (filter === 'paid' && status === 'Paga'));
+                });
+                updateTotalPending();
+            });
+
+            // Atualizar tabela dinamicamente
+            function updateExpenseTable() {
+                $.get('{{ url_for("despesas") }}', function(response) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response, 'text/html');
+                    const newTableBody = $(doc).find('#expense-table-body').html();
+                    $('#expense-table-body').html(newTableBody).find('.edit-item, .delete-item, .pay-item').off().on('click', function() {
+                        $(this).trigger('click');
+                    });
+                    updateTotalPending();
+                });
+            }
+
+            // Atualizar total pendente
+            function updateTotalPending() {
+                let total = 0;
+                $('#expense-table-body tr:visible').each(function() {
+                    if ($(this).hasClass('pending')) {
+                        const amount = parseFloat($(this).find('td:eq(3)').text().replace('R$', '').replace(',', '.'));
+                        total += amount;
+                    }
+                });
+                $('#total-pending').text(total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            }
+
+            // Carregar notificações
+            function loadNotifications() {
+                $.get('{{ url_for("get_notifications") }}', function(data) {
+                    const notificationBody = $('#notification-body');
+                    notificationBody.empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            notificationBody.append(`<div class="notification-item text-gray-200">${item.desc} - Vence em ${item.due_date}</div>`);
+                        });
+                        $('#notification-modal').removeClass('hidden');
+                    } else {
+                        notificationBody.append('<div class="notification-item text-gray-300">Nenhuma notificação.</div>');
+                        $('#notification-modal').removeClass('hidden');
+                    }
+                });
+            }
+
+            $('#close-notifications').on('click', function() {
+                $('#notification-modal').addClass('hidden');
+            });
+
+            // Inicialização
+            updateTotalPending();
+            loadNotifications();
+            setInterval(loadNotifications, 60000);
         });
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            modal.querySelector('.bg-gray-800').classList.add('animate__animated', 'animate__fadeIn');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.querySelector('.bg-gray-800').classList.remove('animate__animated', 'animate__fadeIn');
+            modal.classList.add('hidden');
+        }
     </script>
 </body>
 </html>
